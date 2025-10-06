@@ -5,6 +5,9 @@ import com.murar.journel.service.UserEntryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,14 +23,15 @@ public class UserController {
     public List<User> getAll(){
         return userService.getAll();
     }
-x
+
 
 
 
     //iski help se db mei username aur password badal skte h .. 
-    @PutMapping("{username}")
-    public ResponseEntity<?> updateUser(@RequestBody User user, @PathVariable String username){
-       User userInDB= userService.findUser(username);
+    @PutMapping
+    public ResponseEntity<?> updateUser(@RequestBody User user){
+        Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+       User userInDB= userService.findUser(authentication.getName());
        if(userInDB!=null){
            userInDB.setUsername(user.getUsername());
            userInDB.setPassword(user.getPassword());
