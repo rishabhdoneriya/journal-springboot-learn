@@ -24,12 +24,14 @@ public class JournalEntryService {
     @Autowired
     private  UserEntryService userService;
 
+
     @Transactional
     public void saveEntry(JournalEntry journalEntry, String username){
         User user = userService.findUser(username);
+        journalEntry.setDate(LocalDateTime.now());
 
         JournalEntry saved = journalEntryRepository.save(journalEntry);
-        saved.setDate(LocalDateTime.now());
+
         user.getJournalEntryList().add(saved);
         userService.saveEntry(user);
 
@@ -54,11 +56,24 @@ public class JournalEntryService {
 
     }
 
-    public void deleteEntryById(String username, ObjectId id){
-        User user = userService.findUser(username);
-        user.getJournalEntryList().removeIf(x->x.getId().equals(id));
-        userService.saveEntry(user);
-        journalEntryRepository.deleteById(id);
+    @Transactional
+    public boolean deleteEntryById(String username, ObjectId id){
+        boolean removed = false;
+        try {
+          User user = userService.findUser(username);
+
+          removed = user.getJournalEntryList().removeIf(x->x.getId().equals(id));
+          if(removed){ userService.saveEntry(user);
+              journalEntryRepository.deleteById(id);}
+      } catch (Exception e) {
+          throw new RuntimeException("Id can't be deleted"+e);
+      }
+
+      return removed;
+    }
+
+    public List<JournalEntry> getByUsername(String username){
+        return userService.findUser(username).getJournalEntryList();
     }
 
 

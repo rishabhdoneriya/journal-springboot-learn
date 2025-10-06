@@ -1,6 +1,7 @@
 package com.murar.journel.controller;
 
 import com.murar.journel.entity.User;
+import com.murar.journel.repository.UserEntryRepository;
 import com.murar.journel.service.UserEntryService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -19,6 +20,9 @@ public class UserController {
     @Autowired
     private UserEntryService userService;
 
+    @Autowired
+    private UserEntryRepository userRepository;
+
     @GetMapping
     public List<User> getAll(){
         return userService.getAll();
@@ -36,10 +40,27 @@ public class UserController {
            userInDB.setUsername(user.getUsername());
            userInDB.setPassword(user.getPassword());
        }
-       userService.saveEntry(userInDB);
+       userService.saveNewEntry(userInDB);
 
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
+
+
+    @DeleteMapping
+    public ResponseEntity<?> deleteUserByUsername(@RequestBody User user){
+        Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+       try
+       {
+           userRepository.deleteByUsername(authentication.getName());
+       } catch (Exception e){
+           System.out.printf("User Not Found");
+       }
+
+
+        return new ResponseEntity<>(HttpStatus.OK);
+
+    }
+
 
 
 
