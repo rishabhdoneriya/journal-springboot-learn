@@ -4,6 +4,7 @@ import com.murar.journel.entity.User;
 import com.murar.journel.repository.UserEntryRepository;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
@@ -13,10 +14,13 @@ import java.util.Optional;
 public class UserEntryService {
     @Autowired
     private UserEntryRepository userEntryRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
 
 
 
     public void saveEntry(User user){
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userEntryRepository.save(user);
     }
 

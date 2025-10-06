@@ -20,12 +20,7 @@ public class UserController {
     public List<User> getAll(){
         return userService.getAll();
     }
-    
-    @PostMapping
-    public User createUser(@RequestBody User user){
-        userService.saveEntry(user);
-        return user;
-    }
+x
 
 
 
