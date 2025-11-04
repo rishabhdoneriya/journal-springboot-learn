@@ -1,0 +1,12 @@
+spring:
+  data:
+    mongodb:
+      uri: mongodb://rishabhdoneriya_db_user:Q1GoJnyOSbA5nyYZ@ac-g0omr0z-shard-00-00.lhx0xir.mongodb.net:27017,ac-g0omr0z-shard-00-01.lhx0xir.mongodb.net:27017,ac-g0omr0z-shard-00-02.lhx0xir.mongodb.net:27017/?replicaSet=atlas-13ijme-shard-0&authSource=admin&tls=true&retryWrites=true&w=majority&appName=Cluster0
+      database: journaldb
+      auto-index-creation: true
+  main:
+    allow-circular-references: true
+server:
+  port: 8080
+  servlet:
+    context-path: /journal

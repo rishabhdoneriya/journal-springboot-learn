@@ -58,4 +58,10 @@ public class UserEntryService {
         return userEntryRepository.findByUsername(username);
     }
 
+    public void saveAdmin(User user) {
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRoles(List.of("ADMIN","USER"));
+        userEntryRepository.save(user);
+
+    }
 }
