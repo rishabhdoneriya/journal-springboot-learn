@@ -3,6 +3,7 @@ package com.murar.journel.controller;
 import com.murar.journel.entity.User;
 import com.murar.journel.repository.UserEntryRepository;
 import com.murar.journel.service.UserEntryService;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,10 +13,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/user")
 public class UserController {
+
+
 
     @Autowired
     private UserEntryService userService;
