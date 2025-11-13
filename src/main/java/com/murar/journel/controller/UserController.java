@@ -3,18 +3,18 @@ package com.murar.journel.controller;
 import com.murar.journel.entity.User;
 import com.murar.journel.repository.UserEntryRepository;
 import com.murar.journel.service.UserEntryService;
-import org.slf4j.LoggerFactory;
+import com.murar.journel.service.WeatherService;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.logging.Logger;
 
+@Slf4j
 @RestController
 @RequestMapping("/user")
 public class UserController {
@@ -27,9 +27,15 @@ public class UserController {
     @Autowired
     private UserEntryRepository userRepository;
 
+    @Autowired
+    private WeatherService weatherService;
+
     @GetMapping
     public List<User> getAll(){
-        return userService.getAll();
+        log.debug("Fetching all users"); // Debug level
+        List<User> users = userService.getAll();
+        log.info("Retrieved {} users", users.size()); // Info level
+        return users;
     }
 
 
@@ -39,10 +45,14 @@ public class UserController {
     @PutMapping
     public ResponseEntity<?> updateUser(@RequestBody User user){
         Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
-       User userInDB= userService.findUser(authentication.getName());
+        log.info("Updating user: {}", authentication.getName()); // Info level
+        User userInDB= userService.findUser(authentication.getName());
        if(userInDB!=null){
+           log.debug("User found, updating details"); // Debug level
            userInDB.setUsername(user.getUsername());
            userInDB.setPassword(user.getPassword());
+       } else {
+           log.warn("User not found for update: {}", authentication.getName()); // Warning level
        }
        userService.saveNewEntry(userInDB);
 
@@ -51,13 +61,13 @@ public class UserController {
 
 
     @DeleteMapping
-    public ResponseEntity<?> deleteUserByUsername(@RequestBody User user){
+    public ResponseEntity<?> deleteUserByUsername(){
         Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
        try
        {
            userRepository.deleteByUsername(authentication.getName());
        } catch (Exception e){
-           System.out.printf("User Not Found");
+           log.error("User Not Found: {}", authentication.getName(), e);
        }
 
 
@@ -66,7 +76,23 @@ public class UserController {
     }
 
 
+    @GetMapping("/get-weather")
+    public ResponseEntity<?> getWeather(){
+        Authentication authentication=SecurityContextHolder.getContext().getAuthentication();
+        log.info("Fetching weather for user: {}", authentication.getName()); // Info level
 
+        String weatherServiceResponse = weatherService.getCurrentWeather("morena");
+        if(weatherServiceResponse.isEmpty()){
+            log.warn("Weather service returned empty response"); // Warning level
+            return new ResponseEntity<>("NULL",HttpStatus.BAD_GATEWAY);
+        }else{
+            String username =  authentication.getName();
+            String response = "HI "+username+", The weather" + weatherServiceResponse;
+            log.debug("Weather response: {}", weatherServiceResponse); // Debug level
+            return new ResponseEntity<>(response,HttpStatus.OK);
+        }
+
+    }
 
 
 

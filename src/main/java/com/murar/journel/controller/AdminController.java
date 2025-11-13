@@ -2,6 +2,7 @@ package com.murar.journel.controller;
 
 import java.util.List;
 
+import com.murar.journel.appcache.AppCache;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,9 @@ import com.murar.journel.service.UserEntryService;
 @RequestMapping("/admin")
 public class AdminController {
 
+
+    @Autowired
+    private AppCache appCache;
     @Autowired
     private UserEntryService userEntryService;
 
@@ -32,6 +36,11 @@ public class AdminController {
         userEntryService.saveAdmin(user);
         return new ResponseEntity<>(user,HttpStatus.CREATED);
 
+    }
+
+    @GetMapping("clear-app-cache")
+    public void init(){
+        appCache.init();
     }
 
 

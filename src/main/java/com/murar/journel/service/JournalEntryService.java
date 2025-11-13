@@ -6,11 +6,10 @@ package com.murar.journel.service;
 import com.murar.journel.entity.JournalEntry;
 import com.murar.journel.entity.User;
 import com.murar.journel.repository.JournalEntryRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
-import org.slf4j.LoggerFactory;
-import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -18,7 +17,8 @@ import java.util.List;
 import java.util.Optional;
 
 
-@Component
+@Slf4j
+@Service
 public class JournalEntryService {
 
     @Autowired
@@ -26,8 +26,6 @@ public class JournalEntryService {
 
     @Autowired
     private  UserEntryService userService;
-
-    private static final Logger logger = LoggerFactory.getLogger(JournalEntryService.class);
 
     @Transactional
     public void saveEntry(JournalEntry journalEntry, String username){
@@ -40,8 +38,8 @@ public class JournalEntryService {
             user.getJournalEntryList().add(saved);
             userService.saveEntry(user);
         } catch (Exception e) {
-
-            throw new RuntimeException("An error occoured while saving the entry");
+            log.error("Error saving journal entry for user: {}", username, e);
+            throw new RuntimeException("An error occoured while saving the entry", e);
         }
 
     }
@@ -75,8 +73,8 @@ public class JournalEntryService {
           if(removed){ userService.saveEntry(user);
               journalEntryRepository.deleteById(id);}
       } catch (Exception e) {
-            logger.info("Id cannt delete");
-          throw new RuntimeException("Id can't be deleted"+e);
+            log.error("Error deleting journal entry with id: {} for user: {}", id, username, e);
+          throw new RuntimeException("Id can't be deleted", e);
       }
 
       return removed;

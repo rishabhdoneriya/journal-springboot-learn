@@ -4,18 +4,15 @@ import com.murar.journel.entity.User;
 import com.murar.journel.repository.UserEntryRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
 @Slf4j
-@Component
+@Service
 public class UserEntryService {
     @Autowired
     private UserEntryRepository userEntryRepository;
@@ -34,8 +31,8 @@ public class UserEntryService {
             user.setRoles(List.of("USER"));
             userEntryRepository.save(user);
         } catch (Exception e) {
-            log.error(  "User cant be created");
-            throw new RuntimeException(e);
+            log.error("User can't be created: {}", user.getUsername(), e);
+            throw new RuntimeException("User can't be created", e);
         }
     }
 
@@ -57,7 +54,10 @@ public class UserEntryService {
     }
 
     public void deleteEntryByUsername(String username){
-        userEntryRepository.delete(userEntryRepository.findByUsername(username));
+        User user = userEntryRepository.findByUsername(username);
+        if (user != null) {
+            userEntryRepository.delete(user);
+        }
     }
 
 

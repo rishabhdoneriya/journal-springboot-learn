@@ -4,6 +4,7 @@ import com.murar.journel.entity.JournalEntry;
 import com.murar.journel.entity.User;
 import com.murar.journel.service.JournalEntryService;
 import com.murar.journel.service.UserEntryService;
+import lombok.extern.slf4j.Slf4j;
 import org.bson.types.ObjectId;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -13,13 +14,11 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
 
 /**
  * Special type of component that handles HTTP requests
  */
+@Slf4j
 @RestController
 @RequestMapping("/journal")
 public class JournalEntryController {
@@ -54,6 +53,7 @@ public class JournalEntryController {
             journalEntryService.saveEntry(myEntry, authentication.getName());
             return new ResponseEntity<>(myEntry, HttpStatus.CREATED);
         } catch (Exception e) {
+            log.error("Error creating journal entry for user: {}", authentication.getName(), e);
             return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
         }
     }
@@ -115,7 +115,7 @@ public class JournalEntryController {
         }
 
         // Update fields only if they are provided
-        if (newEntry.getTitle() != null && !newEntry.getTitle().isEmpty()) {
+        if (!newEntry.getTitle().isEmpty()) {
             oldEntry.setTitle(newEntry.getTitle());
         }
         if (newEntry.getContent() != null && !newEntry.getContent().isEmpty()) {
